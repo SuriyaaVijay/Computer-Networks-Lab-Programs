@@ -1,0 +1,98 @@
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.*;
+import java.awt.Desktop;
+public class serverhttp extends Thread{
+private ServerSocket serverSocket;
+private int port;
+private boolean running = false;
+public serverhttp(int port){
+this.port = port;
+}
+public void startServer(){
+try
+{
+serverSocket = new ServerSocket(port);
+this.start();
+}catch(IOException e)
+{
+e.printStackTrace();
+}
+}
+public void stopServer(){
+running = false;
+this.interrupt();
+}
+@Override
+public void run(){
+running = true;
+while(running){
+try
+{
+System.out.println( "Listening for a connection..." );
+Socket socket = serverSocket.accept();
+RequestHandler requestHandler = new RequestHandler( socket );
+requestHandler.start();
+}catch (IOException e)
+{
+e.printStackTrace();
+}
+}
+}
+public static void main( String args[] ){
+if(args.length == 0){
+System.out.println( "Usage: serverhttp <port_number>" );
+System.exit(0);
+} int port =
+Integer.parseInt(args[0]);
+System.out.println( "Started server on port: " + port );
+serverhttp server = new serverhttp(port);
+server.startServer();
+try
+{
+Thread.sleep(60000);
+}
+catch(Exception e)
+{
+e.printStackTrace();
+}
+server.stopServer();
+}
+}
+class RequestHandler extends Thread{
+private Socket socket;
+RequestHandler(Socket socket){
+this.socket = socket;
+}
+@Override
+public void run(){
+try
+{
+System.out.println("Received a connection");
+Scanner scan = new Scanner(System.in);
+PrintWriter out = new PrintWriter(socket.getOutputStream());
+File file = new File("hello.html");
+Desktop desktop = Desktop.getDesktop();
+desktop.open(file);
+BufferedReader in = new BufferedReader(new
+InputStreamReader(socket.getInputStream()));
+out.println( "Echo Server 1.0" );
+out.flush();
+String line = in.readLine();
+while(line != null && line.length() > 0){
+out.println( "Echo: " + line );
+out.flush();
+line = in.readLine();
+}
+in.close();
+out.close();
+socket.close();
+System.out.println("Connection closed");
+System.out.println("------------------------x---x---x--------------------");
+}
+catch( Exception e )
+{
+e.printStackTrace();
+}}
+}

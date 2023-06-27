@@ -1,0 +1,38 @@
+import java.sql.SQLOutput;
+import java.util.*;
+import java.net.*;
+import java.awt.Desktop;
+
+public class webcache {
+    public static void main(String[] args) throws Exception {
+        Scanner in=new Scanner(System.in);
+        HashSet<String> set = new HashSet<String>();
+        while(true) {
+            System.out.print("Enter website domain name : ");
+            String message;
+            message = in.nextLine();
+            if(message.equalsIgnoreCase("Exit")) break;
+            Desktop desk = Desktop.getDesktop();
+            InetAddress host = InetAddress.getByName(message);
+            String msg = host.toString();
+            int k = msg.indexOf('/');
+            String ip = msg.substring(k + 1);
+
+            System.out.println("The Domain IP is : " + ip);
+            desk.browse(new URI(message));
+            if (set.contains(message)) 
+{
+                System.out.println("Fetched from cache");
+            }
+            else {
+                System.out.println("Not in cache, fetched from server");
+                set.add(message);
+                Iterator<String> i=set.iterator();
+                while(i.hasNext())
+                {
+                    System.out.println(i.next());
+                }
+            }
+        }
+    }
+}
